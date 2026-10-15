@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -41,9 +40,16 @@ export default function DashboardPage() {
         (provider) => provider.providerId === "password"
       );
 
+      // Email/password accounts must verify their email.
+      // Google accounts are not blocked by this check.
       if (isPasswordUser && !currentUser.emailVerified) {
-        void signOut(auth);
-        router.replace("/login");
+        setUser(null);
+        setCheckingAuth(false);
+
+        void signOut(auth).finally(() => {
+          router.replace("/login");
+        });
+
         return;
       }
 
@@ -75,10 +81,15 @@ export default function DashboardPage() {
     );
   }
 
-  const displayName =
-    user.displayName || user.email?.split("@")[0] || "User";
+  // Keep a non-null user reference after the authentication guard.
+  const currentUser: User = user;
 
-  const providerNames = user.providerData.map((provider) => {
+  const displayName =
+    currentUser.displayName ||
+    currentUser.email?.split("@")[0] ||
+    "User";
+
+  const providerNames = currentUser.providerData.map((provider) => {
     const names: Record<string, string> = {
       password: "Email & Password",
       "google.com": "Google",
@@ -122,6 +133,11 @@ export default function DashboardPage() {
   };
 
   function renderOverview() {
+    const emailVerified = currentUser.emailVerified;
+    const isEmailPasswordUser = currentUser.providerData.some(
+      (provider) => provider.providerId === "password"
+    );
+
     return (
       <>
         <div className="security-welcome">
@@ -145,15 +161,16 @@ export default function DashboardPage() {
           <div style={cardStyle}>
             <p style={mutedText}>ACCOUNT STATUS</p>
             <h3 className="security-card-heading">
-              {user?.emailVerified ||
-              !providerNames.includes("Email & Password")
+              {emailVerified || !isEmailPasswordUser
                 ? "Account Active"
                 : "Verification Pending"}
             </h3>
             <p style={mutedText}>
-              {user.emailVerified
+              {emailVerified
                 ? "Your email address is verified."
-                : "Email verification status is not confirmed."}
+                : isEmailPasswordUser
+                  ? "Email verification status is not confirmed."
+                  : "Signed in using an external provider."}
             </p>
           </div>
 
@@ -170,7 +187,9 @@ export default function DashboardPage() {
           <div style={cardStyle}>
             <p style={mutedText}>USER ID</p>
             <h3 className="security-card-heading">Firebase account</h3>
-            <p style={mutedText}>{user.uid.slice(0, 12)}...</p>
+            <p style={mutedText}>
+              {currentUser.uid.slice(0, 12)}...
+            </p>
           </div>
         </div>
 
@@ -179,7 +198,7 @@ export default function DashboardPage() {
 
           <div className="security-info-row">
             <span>Email address</span>
-            <strong>{user.email || "Not available"}</strong>
+            <strong>{currentUser.email || "Not available"}</strong>
           </div>
 
           <div className="security-info-row">
@@ -189,17 +208,15 @@ export default function DashboardPage() {
 
           <div className="security-info-row">
             <span>Email verified</span>
-            <strong>
-              {user.emailVerified ? "Yes" : "Not confirmed"}
-            </strong>
+            <strong>{emailVerified ? "Yes" : "Not confirmed"}</strong>
           </div>
 
           <div className="security-info-row">
             <span>Account created</span>
             <strong>
-              {user.metadata.creationTime
+              {currentUser.metadata.creationTime
                 ? new Date(
-                    user.metadata.creationTime
+                    currentUser.metadata.creationTime
                   ).toLocaleDateString()
                 : "Not available"}
             </strong>
@@ -237,6 +254,8 @@ export default function DashboardPage() {
   }
 
   function renderSecurity() {
+    const emailVerified = currentUser.emailVerified;
+
     return (
       <>
         <h2 style={sectionTitleStyle}>Security Center</h2>
@@ -250,10 +269,10 @@ export default function DashboardPage() {
             {
               icon: "✉️",
               title: "Email Verification",
-              description: user.emailVerified
+              description: emailVerified
                 ? "Your email is verified."
                 : "Your email verification is not confirmed.",
-              status: user.emailVerified ? "Verified" : "Unverified",
+              status: emailVerified ? "Verified" : "Unverified",
             },
             {
               icon: "🛡️",
@@ -326,7 +345,7 @@ export default function DashboardPage() {
 
         <div className="security-method-list">
           {methods.map((method) => {
-            const available = user.providerData.some(
+            const available = currentUser.providerData.some(
               (provider) => provider.providerId === method.id
             );
 
@@ -376,7 +395,7 @@ export default function DashboardPage() {
         id: "password",
         name: "Email & Password",
         icon: "✉️",
-        description: user.email || "Email-based account",
+        description: currentUser.email || "Email-based account",
       },
     ];
 
@@ -389,7 +408,7 @@ export default function DashboardPage() {
         </p>
 
         {providers.map((provider) => {
-          const linked = user.providerData.some(
+          const linked = currentUser.providerData.some(
             (item) => item.providerId === provider.id
           );
 
@@ -451,12 +470,12 @@ export default function DashboardPage() {
 
           <div className="security-info-row">
             <span>Email</span>
-            <strong>{user.email || "Not available"}</strong>
+            <strong>{currentUser.email || "Not available"}</strong>
           </div>
 
           <div className="security-info-row">
             <span>Account UID</span>
-            <strong className="security-uid">{user.uid}</strong>
+            <strong className="security-uid">{currentUser.uid}</strong>
           </div>
         </div>
 
@@ -578,7 +597,7 @@ export default function DashboardPage() {
 
             <div className="security-mini-profile-text">
               <strong>{displayName}</strong>
-              <span>{user.email || "Authenticated user"}</span>
+              <span>{currentUser.email || "Authenticated user"}</span>
             </div>
           </div>
 
