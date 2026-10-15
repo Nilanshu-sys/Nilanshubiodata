@@ -145,7 +145,7 @@ export default function DashboardPage() {
           <div style={cardStyle}>
             <p style={mutedText}>ACCOUNT STATUS</p>
             <h3 className="security-card-heading">
-              {user.emailVerified ||
+              {user?.emailVerified ||
               !providerNames.includes("Email & Password")
                 ? "Account Active"
                 : "Verification Pending"}
