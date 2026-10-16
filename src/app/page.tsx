@@ -1,29 +1,52 @@
-"use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../lib/firebase";
+import Link from "next/link";
 
 export default function HomePage() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.replace("/dashboard");
-      } else {
-        router.replace("/login");
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
-
   return (
-    <main className="loading-screen">
-      <div className="loader" />
-      <p>Loading your website...</p>
+    <main className="min-h-screen bg-slate-950 px-6 py-16 text-white">
+      <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+        <p className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-blue-400">
+          Welcome to my website
+        </p>
+
+        <h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+          Nilanshu | Personal Biodata
+        </h1>
+
+        <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
+          Welcome to Nilanshu&apos;s personal website. This website
+          provides a simple and convenient way to access your account
+          and explore the available features.
+        </p>
+
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Link
+            href="/login"
+            className="rounded-lg bg-blue-600 px-6 py-3 font-semibold hover:bg-blue-500"
+          >
+            Login
+          </Link>
+
+          <Link
+            href="/register"
+            className="rounded-lg border border-slate-600 px-6 py-3 font-semibold hover:bg-slate-800"
+          >
+            Create Account
+          </Link>
+        </div>
+
+        <section className="mt-16 w-full rounded-2xl border border-slate-800 bg-slate-900 p-8 text-left">
+          <h2 className="text-2xl font-semibold">
+            About This Website
+          </h2>
+
+          <p className="mt-4 leading-7 text-slate-300">
+            This is the personal website of Nilanshu. Visitors can
+            learn about the website and access the account features
+            through the login and registration pages.
+          </p>
+        </section>
+      </div>
     </main>
   );
 }
