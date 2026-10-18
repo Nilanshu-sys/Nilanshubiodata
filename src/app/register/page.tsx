@@ -12,6 +12,7 @@ import {
   signOut,
   signInWithPopup,
   GoogleAuthProvider,
+  GithubAuthProvider,
 } from "firebase/auth";
 import { auth } from "../../lib/firebase";
 
@@ -147,6 +148,33 @@ export default function SignupPage() {
     }
   }
 
+  async function handleGithubSignup() {
+    if (loading) return;
+
+    setLoading(true);
+    setMessage("");
+
+    try {
+      const provider = new GithubAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.replace("/dashboard");
+    } catch (error: unknown) {
+      const code = (error as { code?: string }).code;
+
+      if (code === "auth/popup-closed-by-user") {
+        setMessage("");
+      } else if (code === "auth/account-exists-with-different-credential") {
+        feedback(
+          "This email is already registered with another sign-in method. Please sign in using that method."
+        );
+      } else {
+        feedback(`GitHub sign-up failed: ${code || "Please try again."}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="relative isolate flex min-h-screen w-full items-center justify-center overflow-x-hidden bg-slate-950 px-5 py-10 text-white sm:px-10">
       {/* Same mountain background as login */}
@@ -185,12 +213,11 @@ export default function SignupPage() {
           </p>
 
           <p className="mt-8 text-sm text-white/90">
-            Already registered?{" "}
             <Link
               href="/login"
               className="font-semibold text-orange-300 hover:underline"
             >
-              Sign in
+              ← Back to Sign In
             </Link>
           </p>
         </section>
@@ -350,14 +377,51 @@ export default function SignupPage() {
             Continue with Google
           </button>
 
+          <button
+            type="button"
+            onClick={handleGithubSignup}
+            disabled={loading}
+            className="mt-3 flex w-full items-center justify-center gap-3 border border-white/50 bg-white/10 px-4 py-3 text-sm font-semibold hover:bg-white/20 disabled:opacity-50"
+          >
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-black">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                className="h-5 w-5"
+                fill="currentColor"
+              >
+                <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.53v-2.07c-3.1.67-3.75-1.32-3.75-1.32-.5-1.28-1.24-1.62-1.24-1.62-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15.99 1.7 2.6 1.21 3.23.92.1-.72.39-1.21.7-1.49-2.47-.28-5.07-1.24-5.07-5.5 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.96 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.54.23 2.68.11 2.96.72.78 1.15 1.78 1.15 3 0 4.27-2.6 5.22-5.08 5.49.4.35.75 1.02.75 2.06V22c0 .29.2.63.76.52A11.1 11.1 0 0 0 12 .9Z" />
+              </svg>
+            </span>
+            Continue with GitHub
+          </button>
+
           <p className="mt-6 text-center text-sm text-white/90">
             Already have an account?{" "}
             <Link
               href="/login"
               className="font-semibold text-orange-300 hover:underline"
             >
-              Sign in
+              Back to Sign In
             </Link>
+          </p>
+
+          <p className="mt-5 text-center text-xs leading-5 text-white/75">
+            By creating an account, you agree to our{" "}
+            <Link
+              href="/terms"
+              className="font-semibold text-orange-300 hover:underline"
+            >
+              Terms of Service
+            </Link>{" "}
+            and acknowledge our{" "}
+            <Link
+              href="/privacy"
+              className="font-semibold text-orange-300 hover:underline"
+            >
+              Privacy Policy
+            </Link>
+            .
           </p>
         </section>
       </div>

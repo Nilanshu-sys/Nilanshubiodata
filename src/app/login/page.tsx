@@ -11,7 +11,6 @@ import {
   sendEmailVerification,
   sendPasswordResetEmail,
   signInWithPopup,
-  signInWithRedirect,
   GoogleAuthProvider,
   GithubAuthProvider,
   signOut,
@@ -281,6 +280,16 @@ export default function LoginPage() {
             Nilanshu digital identity, all in one place. Sign in
             securely to continue your journey and access your
             personal dashboard.
+          </p>
+
+          <p className="mt-8 text-sm text-white/90">
+            New here?{" "}
+            <Link
+              href="/register"
+              className="font-semibold text-orange-300 hover:underline"
+            >
+              Create an account
+            </Link>
           </p>
         </section>
 
