@@ -91,12 +91,7 @@ export default function TermsPage() {
           ← Back to Sign In
         </Link>
 
-        <Link
-          href="/privacy"
-          className="text-blue-600 underline hover:text-blue-800"
-        >
-          Privacy Policy
-        </Link>
+        
       </div>
     </main>
   );
