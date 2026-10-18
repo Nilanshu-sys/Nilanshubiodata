@@ -102,12 +102,12 @@ export default function PrivacyPage() {
           ← Back to Sign In
         </Link>
 
-        <Link
-          href="/terms"
-          className="text-blue-600 underline hover:text-blue-800"
-        >
-          Terms of Service
-        </Link>
+      <Link
+  href="/terms"
+  className="text-blue-600 underline hover:text-blue-800"
+>
+  Terms of Service
+</Link>
       </div>
     </main>
   );
